@@ -580,6 +580,7 @@ _v3.3.1 was skipped due to a bad deploy._
 - Enable the Node environment for SSR tests, switch some output verification to snapshot testing (see [#1023](https://github.com/styled-components/styled-components/pull/1023))
 - Add .extend and .withComponent deterministic ID generation (see [#1044](https://github.com/styled-components/styled-components/pull/1044))
 - Add `marquee` tag to domElements (see [#1167](https://github.com/styled-components/styled-components/pull/1167))
+- Add support for top level ``.attrs`` factory function (see [#1171](https://github.com/styled-components/styled-components/pull/1171))
 
 ## [v2.1.1] - 2017-07-03
 

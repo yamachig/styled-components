@@ -132,11 +132,16 @@ class StyledComponent extends Component<*> {
     return createElement(elementToBeCreated, propsForElement);
   }
 
-  buildExecutionContext(theme: any, props: any, attrs: any) {
+  buildExecutionContext(theme: any, props: any, rawAttrs: any, resolveAttrs: Function) {
     const context = { ...props, theme };
 
-    if (attrs === undefined) return context;
+    if (resolveAttrs === undefined) return context;
 
+    if (typeof rawAttrs === 'function') {
+      console.log('hey');
+    }
+
+    const attrs = resolveAttrs(context, rawAttrs);
     this.attrs = {};
 
     let attr;
@@ -166,7 +171,12 @@ class StyledComponent extends Component<*> {
     }
 
     const className = componentStyle.generateAndInjectStyles(
-      this.buildExecutionContext(theme, props, props.forwardedClass.attrs),
+      this.buildExecutionContext(
+        theme,
+        props,
+        props.forwardedClass.attrs,
+        props.forwardedClass.resolveAttrs
+      ),
       styleSheet
     );
 
@@ -183,10 +193,11 @@ export default function createStyledComponent(target: Target, options: Object, r
   const isClass = !isTag(target);
 
   const {
+    attrs,
     displayName = generateDisplayName(target),
     componentId = generateId(ComponentStyle, options.displayName, options.parentComponentId),
     ParentComponent = StyledComponent,
-    attrs,
+    resolveAttrs,
   } = options;
 
   const styledComponentId =
@@ -199,13 +210,16 @@ export default function createStyledComponent(target: Target, options: Object, r
     // $FlowFixMe
     isTargetStyledComp && target.attrs ? { ...target.attrs, ...attrs } : attrs;
 
+  // $FlowFixMe
+  const attrsSet = [attrs, isTargetStyledComp && target.attrs].filter(Boolean);
+
   const componentStyle = new ComponentStyle(
     isTargetStyledComp
       ? // fold the underlying StyledComponent rules up (implicit extend)
         // $FlowFixMe
         target.componentStyle.rules.concat(rules)
       : rules,
-    finalAttrs,
+    attrsSet,
     styledComponentId
   );
 
@@ -218,7 +232,7 @@ export default function createStyledComponent(target: Target, options: Object, r
   ));
 
   // $FlowFixMe
-  WrappedStyledComponent.attrs = finalAttrs;
+  WrappedStyledComponent.resolveAttrs = resolveAttrs;
   // $FlowFixMe
   WrappedStyledComponent.componentStyle = componentStyle;
   WrappedStyledComponent.displayName = displayName;
@@ -254,7 +268,7 @@ export default function createStyledComponent(target: Target, options: Object, r
 
   if (isClass) {
     hoist(WrappedStyledComponent, target, {
-      // all SC-specific things should not be hoisted
+      // all SC-specific things should no`t be hoisted
       attrs: true,
       componentStyle: true,
       displayName: true,

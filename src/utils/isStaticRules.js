@@ -3,7 +3,7 @@ import isFunction from './isFunction';
 import isStyledComponent from './isStyledComponent';
 import type { RuleSet } from '../types';
 
-export default function isStaticRules(rules: RuleSet, attrs?: Object): boolean {
+export default function isStaticRules(rules: RuleSet, attrsSet?: Array<Object | Function>): boolean {
   for (let i = 0; i < rules.length; i += 1) {
     const rule = rules[i];
 
@@ -17,14 +17,14 @@ export default function isStaticRules(rules: RuleSet, attrs?: Object): boolean {
     }
   }
 
-  if (attrs !== undefined) {
-    // eslint-disable-next-line guard-for-in, no-restricted-syntax
-    for (const key in attrs) {
-      const value = attrs[key];
-      if (isFunction(value)) {
+  if (Array.isArray(attrsSet) && attrsSet.length > 0) {
+    for (let i = 0; i < attrsSet.length; i += 1) {
+      const attrs = attrsSet[i];
+      if (isFunction(attrs)) {
         return false;
       }
     }
+    return false;
   }
 
   return true;

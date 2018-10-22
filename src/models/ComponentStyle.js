@@ -29,9 +29,9 @@ export default class ComponentStyle {
 
   lastClassName: ?string;
 
-  constructor(rules: RuleSet, attrs?: Object, componentId: string) {
+  constructor(rules: RuleSet, attrsSet?: Array<Object | Function>, componentId: string) {
     this.rules = rules;
-    this.isStatic = !isHMREnabled && isStaticRules(rules, attrs);
+    this.isStatic = !isHMREnabled && isStaticRules(rules, attrsSet);
     this.componentId = componentId;
 
     if (!StyleSheet.master.hasId(componentId)) {

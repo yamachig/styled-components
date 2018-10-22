@@ -16,6 +16,12 @@ describe('attrs', () => {
     expect(TestRenderer.create(<Comp />).toJSON()).toMatchSnapshot();
   });
 
+  it('work fine with null object', () => {
+    const attrs = null;
+    const Comp = styled.div.attrs(attrs)``
+    expect(TestRenderer.create(<Comp />).toJSON()).toMatchSnapshot();
+  })
+
   it('pass a simple attr', () => {
     const Comp = styled.button.attrs({
       type: 'button',
@@ -187,4 +193,38 @@ describe('attrs', () => {
 
     expect(TestRenderer.create(<BlueText>Hello</BlueText>).toJSON()).toMatchSnapshot();
   });
+
+  it('should accept function with props as argument', () => {
+    const Comp = styled.input.attrs(props => ({
+      className: props.example,
+      type: 'password',
+    }))``
+    expect(TestRenderer.create(<Comp example="test"/>).toJSON()).toMatchSnapshot();
+  })
+
+  it('should accept function with attrs props when extending', () => {
+    const Comp = styled.input.attrs(props => ({
+      className: props.example,
+      type: 'password',
+    }))``
+    const Test = styled(Comp)`
+      color: blue
+    `;
+    expect(TestRenderer.create(<Test example="test"/>).toJSON()).toMatchSnapshot();
+  });
+
+  it('should accept attrs nesting', () => {
+    const WithNestedAttrs = styled.input.attrs({
+      type: 'password'
+    }).attrs({
+      className: 'nested'
+    }).attrs(props => (
+      { id: props.val })
+    ).attrs({
+      disabled: 'disabled',
+      name: props => props.test
+    })``;
+
+    expect(TestRenderer.create(<WithNestedAttrs val="nested" test="test"/>).toJSON()).toMatchSnapshot();
+  })
 });

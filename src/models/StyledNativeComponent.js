@@ -65,11 +65,12 @@ class StyledNativeComponent extends Component<*, *> {
     );
   }
 
-  buildExecutionContext(theme: any, props: any, attrs: any) {
+  buildExecutionContext(theme: any, props: any, resolveAttrs: any) {
     const context = { ...props, theme };
 
-    if (attrs === undefined) return context;
+    if (resolveAttrs === undefined) return context;
 
+    const attrs = resolveAttrs(context);
     this.attrs = {};
 
     let attr;
@@ -92,7 +93,11 @@ class StyledNativeComponent extends Component<*, *> {
   generateAndInjectStyles(theme: any, props: any) {
     const { inlineStyle } = props.forwardedClass;
 
-    const executionContext = this.buildExecutionContext(theme, props, props.forwardedClass.attrs);
+    const executionContext = this.buildExecutionContext(
+      theme,
+      props,
+      props.forwardedClass.resolveAttrs
+    );
 
     return inlineStyle.generateStyleObject(executionContext);
   }
@@ -113,9 +118,9 @@ class StyledNativeComponent extends Component<*, *> {
 export default (InlineStyle: Function) => {
   const createStyledNativeComponent = (target: Target, options: Object, rules: RuleSet) => {
     const {
-      attrs,
       displayName = generateDisplayName(target),
       ParentComponent = StyledNativeComponent,
+      resolveAttrs,
     } = options;
 
     const isClass = !isTag(target);
@@ -139,7 +144,7 @@ export default (InlineStyle: Function) => {
      */
 
     // $FlowFixMe
-    WrappedStyledNativeComponent.attrs = finalAttrs;
+    WrappedStyledNativeComponent.resolveAttrs = resolveAttrs;
 
     WrappedStyledNativeComponent.displayName = displayName;
 
