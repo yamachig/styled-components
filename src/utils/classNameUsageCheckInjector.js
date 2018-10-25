@@ -1,9 +1,10 @@
 // @flow
-import ReactDOM from 'react-dom';
 import getComponentName from './getComponentName';
 
 export default (target: Object) => {
   let elementClassName = '';
+  let elementRef = null;
+  let node: Element | null = null;
 
   const targetCDM = target.componentDidMount;
 
@@ -17,14 +18,16 @@ export default (target: Object) => {
       .replace(/ +/g, ' ')
       .trim()
       .split(' ');
+
     // eslint-disable-next-line react/no-find-dom-node
-    const node: Element | null = (ReactDOM.findDOMNode(this): any);
     const selector = classNames.map(s => `.${s}`).join('');
 
     if (
       node &&
       node.nodeType === 1 &&
-      !classNames.every(className => node.classList && node.classList.contains(className)) &&
+      !classNames.every(
+        className => node && node.classList && node.classList.contains(className)
+      ) &&
       !node.querySelector(selector)
     ) {
       console.warn(
@@ -39,6 +42,22 @@ export default (target: Object) => {
 
   // eslint-disable-next-line no-param-reassign
   target.renderInner = function renderInner(...args) {
+    elementRef = target.props.forwardedRef || target.props.ref;
+
+    // https://github.com/facebook/react/issues/13029
+    // eslint-disable-next-line no-param-reassign
+    target.internalRef = el => {
+      node = el;
+
+      if (elementRef) {
+        if (typeof elementRef === 'function') {
+          elementRef(el);
+        } else if (typeof elementRef === 'object') {
+          elementRef.current = el;
+        }
+      }
+    };
+
     const element = prevRenderInner.apply(this, args);
 
     elementClassName = element.props.className;
