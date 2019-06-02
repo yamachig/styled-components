@@ -72,8 +72,11 @@
   },
   "peerDependencies": {
     "react": ">= 16.8.0",
-    "react-dom": ">= 16.8.0",
     "react-is": ">= 16.8.0"
+  },
+  "optionalPeerDependencies": {
+    "react-dom": ">= 16.8.0",
+    "react-native": ">= 0.59"
   },
   "devDependencies": {
     "flow-bin": "^0.93.0",
